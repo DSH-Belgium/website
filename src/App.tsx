@@ -135,7 +135,7 @@ const Hero = () => (
   </section>
 );
 
-const MollierDiagram = () => {
+const MollierDiagram = ({ activeStep }: { activeStep: number }) => {
   // Constants for psychrometrics
   const P_TOTAL = 1013.25; // hPa
   
@@ -160,6 +160,13 @@ const MollierDiagram = () => {
   const p1 = getCoords(t1, x1);
   const p2 = getCoords(t2, x2);
   const p3 = getCoords(t3, x3);
+
+  // Calculate path length based on active step
+  const getPathLength = () => {
+    if (activeStep === 1) return 0;
+    if (activeStep === 2) return 0.5;
+    return 1;
+  };
 
   return (
     <div className="relative h-full w-full bg-white rounded-lg border border-slate-200 overflow-hidden min-h-[450px] p-4">
@@ -231,9 +238,8 @@ const MollierDiagram = () => {
 
         {/* Process Path: 1 -> 2 -> 3 */}
         <motion.path
-          initial={{ pathLength: 0 }}
-          animate={{ pathLength: 1 }}
-          transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+          animate={{ pathLength: getPathLength() }}
+          transition={{ duration: 0.8, ease: "easeInOut" }}
           d={`M ${p1.x} ${p1.y} L ${p2.x} ${p2.y} L ${p3.x} ${p3.y}`}
           fill="none"
           stroke="#1f8fff"
@@ -243,18 +249,35 @@ const MollierDiagram = () => {
         />
 
         {/* Point 1 */}
-        <circle cx={p1.x} cy={p1.y} r="4" fill="white" stroke="#1f8fff" strokeWidth="2" />
+        <motion.circle 
+          animate={{ 
+            scale: activeStep === 1 ? [1, 1.3, 1] : 1,
+            fill: activeStep === 1 ? "#1f8fff" : "white"
+          }}
+          transition={{ duration: 0.6, repeat: activeStep === 1 ? Infinity : 0 }}
+          cx={p1.x} cy={p1.y} r="4" stroke="#1f8fff" strokeWidth="2" 
+        />
         <text x={p1.x - 12} y={p1.y + 5} className="text-[12px] font-black fill-primary">1</text>
         
         {/* Point 2 */}
-        <circle cx={p2.x} cy={p2.y} r="4" fill="white" stroke="#1f8fff" strokeWidth="2" />
+        <motion.circle 
+          animate={{ 
+            scale: activeStep === 2 ? [1, 1.3, 1] : 1,
+            fill: activeStep === 2 ? "#1f8fff" : "white"
+          }}
+          transition={{ duration: 0.6, repeat: activeStep === 2 ? Infinity : 0 }}
+          cx={p2.x} cy={p2.y} r="4" stroke="#1f8fff" strokeWidth="2" 
+        />
         <text x={p2.x - 13} y={p2.y + 5} className="text-[12px] font-black fill-primary">2</text>
 
         {/* Point 3 */}
         <motion.circle 
-          animate={{ scale: [1, 1.2, 1] }}
-          transition={{ duration: 2, repeat: Infinity }}
-          cx={p3.x} cy={p3.y} r="4" fill="#1f8fff" stroke="white" strokeWidth="2" 
+          animate={{ 
+            scale: activeStep === 3 ? [1, 1.3, 1] : 1,
+            fill: activeStep === 3 ? "#1f8fff" : "white"
+          }}
+          transition={{ duration: 0.6, repeat: activeStep === 3 ? Infinity : 0 }}
+          cx={p3.x} cy={p3.y} r="4" stroke="#1f8fff" strokeWidth="2" 
         />
         <text x={p3.x + 8} y={p3.y + 5} className="text-[12px] font-black fill-primary">3</text>
 
@@ -266,89 +289,109 @@ const MollierDiagram = () => {
   );
 };
 
-const ProcessVisualization = () => (
-  <section id="technology" className="py-24 bg-white">
-    <div className="mx-auto max-w-7xl px-6 lg:px-10">
-      <div className="mb-16 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-        <div className="max-w-[720px]">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-blue-100 px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary">
-            <Activity className="w-4 h-4" />
-            Process Visualization
-          </div>
-          <h2 className="text-4xl font-bold leading-tight tracking-tight text-slate-900 md:text-5xl font-display">
-            The Humidification Cycle
-          </h2>
-          <p className="mt-4 text-lg text-slate-600 max-w-2xl">
-            Our hybrid system optimizes the thermodynamic path to ensure maximum efficiency and hygiene. Follow the 1-2-3 process on the Mollier diagram.
-          </p>
-        </div>
-        <button className="flex h-12 w-fit items-center gap-2 rounded-lg border border-slate-200 bg-white px-5 text-sm font-bold text-slate-900 shadow-sm transition-colors hover:bg-slate-50">
-          <Download className="w-4 h-4" />
-          <span>Technical Spec Sheet</span>
-        </button>
-      </div>
+const ProcessVisualization = () => {
+  const [activeStep, setActiveStep] = useState(1);
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
-        <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:col-span-7 xl:col-span-8">
-          <MollierDiagram />
-          <div className="grid grid-cols-3 gap-4 border-t border-slate-100 pt-4 mt-4">
-            {[
-              { label: 'Point 1: Intake', value: '15°C / 30%' },
-              { label: 'Point 2: Preheated', value: '35°C / 12%' },
-              { label: 'Point 3: Setpoint', value: '22°C / 55%', primary: true },
-            ].map((metric) => (
-              <div key={metric.label} className="group cursor-help relative">
-                <div className="text-[10px] font-bold uppercase text-slate-500 flex items-center gap-1">
-                  {metric.label}
-                  <Info className="w-3 h-3 text-slate-400" />
+  React.useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveStep((prev) => {
+        if (prev === 3) {
+          setTimeout(() => setActiveStep(1), 2000);
+          return 3;
+        }
+        return prev + 1;
+      });
+    }, 2000);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  const steps = [
+    { step: '1', title: 'Conditions before preheating', desc: 'Ambient air enters the system. Initial temperature and moisture content are measured to determine the starting enthalpy.' },
+    { step: '2', title: 'Conditions after preheating', desc: 'Air is heated at constant moisture content (vertical path on diagram). This increases the capacity for water absorption.' },
+    { step: '3', title: 'Conditions after humidification', desc: 'Adiabatic humidification follows the constant enthalpy line (diagonal path). The air cools as it absorbs moisture to reach the setpoint.' },
+  ];
+
+  return (
+    <section id="technology" className="py-24 bg-white">
+      <div className="mx-auto max-w-7xl px-6 lg:px-10">
+        <div className="mb-16 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+          <div className="max-w-[720px]">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-blue-100 px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary">
+              <Activity className="w-4 h-4" />
+              Process Visualization
+            </div>
+            <h2 className="text-4xl font-bold leading-tight tracking-tight text-slate-900 md:text-5xl font-display">
+              The Humidification Cycle
+            </h2>
+            <p className="mt-4 text-lg text-slate-600 max-w-2xl">
+              Our hybrid system optimizes the thermodynamic path to ensure maximum efficiency and hygiene. Follow the 1-2-3 process on the Mollier diagram.
+            </p>
+          </div>
+          <button className="flex h-12 w-fit items-center gap-2 rounded-lg border border-slate-200 bg-white px-5 text-sm font-bold text-slate-900 shadow-sm transition-colors hover:bg-slate-50">
+            <Download className="w-4 h-4" />
+            <span>Technical Spec Sheet</span>
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+          <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:col-span-7 xl:col-span-8">
+            <MollierDiagram activeStep={activeStep} />
+            <div className="grid grid-cols-3 gap-4 border-t border-slate-100 pt-4 mt-4">
+              {[
+                { label: 'Point 1: Intake', value: '15°C / 30%' },
+                { label: 'Point 2: Preheated', value: '35°C / 12%' },
+                { label: 'Point 3: Setpoint', value: '22°C / 55%', primary: true },
+              ].map((metric) => (
+                <div key={metric.label} className="group cursor-help relative">
+                  <div className="text-[10px] font-bold uppercase text-slate-500 flex items-center gap-1">
+                    {metric.label}
+                    <Info className="w-3 h-3 text-slate-400" />
+                  </div>
+                  <div className={cn("text-lg font-bold", metric.primary ? "text-primary" : "text-slate-900")}>{metric.value}</div>
                 </div>
-                <div className={cn("text-lg font-bold", metric.primary ? "text-primary" : "text-slate-900")}>{metric.value}</div>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-4 lg:col-span-5 xl:col-span-4">
+            {steps.map((item) => (
+              <div 
+                key={item.step}
+                className={cn(
+                  "group relative flex gap-4 overflow-hidden rounded-xl border p-5 transition-all",
+                  activeStep === parseInt(item.step)
+                    ? "border-l-4 border-l-primary border-y border-r border-slate-200 bg-blue-50/50 shadow-sm" 
+                    : "border-slate-200 bg-white hover:border-primary/50 hover:shadow-lg"
+                )}
+              >
+                <div className="flex flex-col items-center gap-2">
+                  <div className={cn(
+                    "flex size-10 items-center justify-center rounded-full transition-colors font-bold",
+                    activeStep === parseInt(item.step) ? "bg-primary text-white shadow-md shadow-primary/30" : "bg-slate-100 text-slate-600 group-hover:bg-primary group-hover:text-white"
+                  )}>
+                    {item.step}
+                  </div>
+                  {activeStep !== parseInt(item.step) && <div className="h-full w-[2px] bg-slate-100 group-hover:bg-primary/20" />}
+                </div>
+                <div className="flex-1">
+                  <h4 className={cn("mb-1 text-base font-bold", activeStep === parseInt(item.step) ? "text-primary" : "text-slate-900")}>{item.title}</h4>
+                  <p className="text-sm leading-relaxed text-slate-500">{item.desc}</p>
+                  {activeStep === parseInt(item.step) && (
+                    <div className="mt-3 flex items-center gap-2 text-xs font-semibold text-primary">
+                      <Zap className="w-4 h-4" />
+                      <span>{item.step === '3' ? 'Setpoint Reached' : 'In Progress'}</span>
+                    </div>
+                  )}
+                </div>
               </div>
             ))}
           </div>
         </div>
-
-        <div className="flex flex-col gap-4 lg:col-span-5 xl:col-span-4">
-          {[
-            { step: '1', title: 'Conditions before preheating', desc: 'Ambient air enters the system. Initial temperature and moisture content are measured to determine the starting enthalpy.' },
-            { step: '2', title: 'Conditions after preheating', desc: 'Air is heated at constant moisture content (vertical path on diagram). This increases the capacity for water absorption.' },
-            { step: '3', title: 'Conditions after humidification', desc: 'Adiabatic humidification follows the constant enthalpy line (diagonal path). The air cools as it absorbs moisture to reach the setpoint.', active: true },
-          ].map((item) => (
-            <div 
-              key={item.step}
-              className={cn(
-                "group relative flex gap-4 overflow-hidden rounded-xl border p-5 transition-all",
-                item.active 
-                  ? "border-l-4 border-l-primary border-y border-r border-slate-200 bg-blue-50/50 shadow-sm" 
-                  : "border-slate-200 bg-white hover:border-primary/50 hover:shadow-lg"
-              )}
-            >
-              <div className="flex flex-col items-center gap-2">
-                <div className={cn(
-                  "flex size-10 items-center justify-center rounded-full transition-colors font-bold",
-                  item.active ? "bg-primary text-white shadow-md shadow-primary/30" : "bg-slate-100 text-slate-600 group-hover:bg-primary group-hover:text-white"
-                )}>
-                  {item.step}
-                </div>
-                {!item.active && <div className="h-full w-[2px] bg-slate-100 group-hover:bg-primary/20" />}
-              </div>
-              <div className="flex-1">
-                <h4 className={cn("mb-1 text-base font-bold", item.active ? "text-primary" : "text-slate-900")}>{item.title}</h4>
-                <p className="text-sm leading-relaxed text-slate-500">{item.desc}</p>
-                {item.active && (
-                  <div className="mt-3 flex items-center gap-2 text-xs font-semibold text-primary">
-                    <Zap className="w-4 h-4" />
-                    <span>Setpoint Reached</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
       </div>
-    </div>
-  </section>
-);
+    </section>
+  );
+};
 
 const HybridAdvantage = () => (
   <section className="py-24 bg-slate-50">
