@@ -293,17 +293,25 @@ const ProcessVisualization = () => {
   const [activeStep, setActiveStep] = useState(1);
 
   React.useEffect(() => {
-    const timer = setInterval(() => {
-      setActiveStep((prev) => {
-        if (prev === 3) {
-          setTimeout(() => setActiveStep(1), 2000);
-          return 3;
+    const durations = { 1: 2000, 2: 3000, 3: 2000 };
+    
+    const scheduleNext = (step: number) => {
+      const duration = durations[step as keyof typeof durations];
+      return setTimeout(() => {
+        if (step === 3) {
+          setTimeout(() => {
+            setActiveStep(1);
+            scheduleNext(1);
+          }, 2000);
+        } else {
+          setActiveStep(step + 1);
+          scheduleNext(step + 1);
         }
-        return prev + 1;
-      });
-    }, 2000);
+      }, duration);
+    };
 
-    return () => clearInterval(timer);
+    const timer = scheduleNext(1);
+    return () => clearTimeout(timer);
   }, []);
 
   const steps = [
