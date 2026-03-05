@@ -226,7 +226,7 @@ const MollierDiagram = ({ activeStep }: { activeStep: number }) => {
           for (let t = -10; t <= 50; t += 1) {
             const x = (rh / 100) * getXSat(t);
             const coords = getCoords(t, x);
-            if (coords.x <= 460) {
+            if (coords.x <= 470) {
               points.push(`${coords.x},${coords.y}`);
             }
           }
