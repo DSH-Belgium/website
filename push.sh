@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Quick push script
-git add .
+git add *
 git commit -m "update"
 git push
 

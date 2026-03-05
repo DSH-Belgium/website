@@ -203,22 +203,15 @@ const MollierDiagram = ({ activeStep }: { activeStep: number }) => {
         })}
 
         {/* Constant Enthalpy Lines (Diagonal) */}
-        {[0, 10, 20, 30, 40, 50, 60, 70, 80, 90].map((h, i) => {
-          const x1 = 60 + i * 45;
-          const y1 = 40;
-          const x2 = Math.min(60 + i * 45 + 200, 460);
-          const y2 = 380;
-          
-          return (
-            <line 
-              key={`h-${i}`}
-              x1={x1} y1={y1} x2={x2} y2={y2} 
-              stroke="#cbd5e1" 
-              strokeWidth="0.5" 
-              strokeDasharray="2 2"
-            />
-          );
-        })}
+        {[0, 10, 20, 30, 40, 50, 60, 70, 80, 90].map((h, i) => (
+          <line 
+            key={`h-${i}`}
+            x1={60 + i * 45} y1="40" x2={60 + i * 45 + 200} y2="380" 
+            stroke="#cbd5e1" 
+            strokeWidth="0.5" 
+            strokeDasharray="2 2"
+          />
+        ))}
 
         {/* Relative Humidity Curves */}
         {[10, 20, 30, 40, 50, 60, 70, 80, 90, 100].map((rh) => {
@@ -226,7 +219,7 @@ const MollierDiagram = ({ activeStep }: { activeStep: number }) => {
           for (let t = -10; t <= 50; t += 1) {
             const x = (rh / 100) * getXSat(t);
             const coords = getCoords(t, x);
-            if (coords.x <= 470) {
+            if (coords.x <= 480) {
               points.push(`${coords.x},${coords.y}`);
             }
           }
