@@ -99,7 +99,6 @@ const Hero = () => (
               <div className="absolute inset-0 bg-gradient-to-tr from-slate-900/10 to-transparent" />
               
               <motion.div 
-                animate={{ y: [0, -5, 0] }}
                 transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
                 className="absolute top-10 right-10"
               >
@@ -115,7 +114,6 @@ const Hero = () => (
               </motion.div>
 
               <motion.div 
-                animate={{ y: [0, 5, 0] }}
                 transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
                 className="absolute bottom-10 left-10"
               >
