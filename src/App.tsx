@@ -260,7 +260,7 @@ const MollierDiagram = () => {
 
         {/* Labels */}
         <text x="10" y="200" transform="rotate(-90, 10, 200)" className="text-[10px] fill-slate-500 font-bold uppercase tracking-tighter">Temperature t [°C]</text>
-        <text x="250" y="390" className="text-[10px] fill-slate-500 font-bold uppercase tracking-tighter text-center">Moisture Content x [g/kg]</text>
+        <text x="250" y="420" className="text-[10px] fill-slate-500 font-bold uppercase tracking-tighter text-center">Moisture Content x [g/kg]</text>
       </svg>
     </div>
   );
