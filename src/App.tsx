@@ -248,7 +248,7 @@ const MollierDiagram = () => {
         
         {/* Point 2 */}
         <circle cx={p2.x} cy={p2.y} r="4" fill="white" stroke="#1f8fff" strokeWidth="2" />
-        <text x={p2.x - 12} y={p2.y + 5} className="text-[12px] font-black fill-primary">2</text>
+        <text x={p2.x - 13} y={p2.y + 5} className="text-[12px] font-black fill-primary">2</text>
 
         {/* Point 3 */}
         <motion.circle 
